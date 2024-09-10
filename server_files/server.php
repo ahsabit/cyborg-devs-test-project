@@ -25,18 +25,43 @@ class Chat implements MessageComponentInterface {
 
     private function getAuthDetails(ConnectionInterface $conn) {
         $url = $conn->httpRequest->getUri();
+        // Extract query parameters from URL
         parse_str(parse_url($url, PHP_URL_QUERY), $queryParams);
-        return $queryParams['user_id'] ?? '';
+        
+        // Safely retrieve 'user_id' and 'username' from query parameters
+        $userId = $queryParams['user_id'] ?? null;
+        $username = $queryParams['username'] ?? null;
+        
+        return [$userId, $username];
     }
-
+    
     public function onOpen(ConnectionInterface $conn) {
-        $user_id = $this->getAuthDetails($conn);
-
-        if (!empty($user_id)) {
+        // Get authentication details for the user
+        [$userId, $username] = $this->getAuthDetails($conn);
+    
+        if (!empty($userId)) {
+            // Attach the connection if the userId is valid
             $this->clients->attach($conn);
-            $this->clientId[$user_id] = $conn;
-            echo "Connection opened for user: $user_id\n";
+            $this->clientId[$userId] = $conn;
+    
+            try {
+                // Notify other clients about the new user
+                foreach ($this->clientId as $client => $connection) {
+                    if ($connection !== $conn) {
+                        $connection->send(json_encode([
+                            'new_user' => $username,
+                            'user_id' => $userId
+                        ]));
+                    }
+                }
+            } catch (\Throwable $th) {
+                // Log error if message sending fails
+                echo "Error sending message: " . $th->getMessage() . "\n";
+            }
+    
+            echo "Connection opened for user: " . $userId . "\n";
         } else {
+            // Handle invalid user scenario
             echo "Invalid user, closing connection.\n";
             $conn->close();
         }

@@ -38,7 +38,7 @@
                 </div>
                 <div class="drawer-side">
                     <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
-                    <ul class="menu border-gray-500 border-r-[1px] bg-base-200 text-base-content min-h-full w-80 p-4">
+                    <ul id="menu" class="menu border-gray-500 border-r-[1px] bg-base-200 text-base-content min-h-full w-80 p-4">
                         <!-- Sidebar content here -->
                         <?php
                             $stmt = $pdo->query("SELECT id, username FROM users");
@@ -102,6 +102,7 @@
         </div>
     </div>
     <span id="from" style="display: none;"><?php echo $_SESSION['user_id']; ?></span>
+    <span id="username" style="display: none;"><?php echo $_SESSION['username']; ?></span>
     <span id="to" style="display: none;"><?php echo (isset($_GET['to'])) ? $_GET['to'] : "adsi78g87ylhsfdhADSF*((Ysdf"; ?></span>
     <script src="assets/js/main.js"></script>
 </body>

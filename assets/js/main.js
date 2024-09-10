@@ -4,10 +4,12 @@ var from = document.getElementById('from').innerText;
 var inputBox = document.getElementById('msg-input');
 var msgBox = document.getElementById('msg-box');
 var hNum = document.getElementById('h-num'); 
+var username = document.getElementById('username').innerText;
+var menu = document.getElementById('menu');
 
 msgBox.scroll(0, msgBox.scrollHeight);
 
-const ws = connectWebSocket("ws://localhost:8080?user_id=" + from);
+const ws = connectWebSocket("ws://localhost:8080?username=" + username + "&user_id=" + from);
 
 inputBox.addEventListener('keypress', function(event) {
     if (event.key === 'Enter' && recipient !== none_key) {
@@ -40,23 +42,49 @@ function connectWebSocket(sUrl) {
     socket.onmessage = function(event) {
         try {
             let msg = JSON.parse(event.data);
-            if (msg['from'] == recipient) {
-                if (hNum.innerText == '1') {
-                    msgBox.innerHTML += `<div class="chat chat-start">
+    
+            if (msg['new_user'] !== undefined) {
+                let userList = menu.querySelectorAll('li');
+                let userExists = Array.from(userList).some(element => {
+                    const link = element.querySelector('a');
+                    if (link) {
+                        const url = new URL(link.href);
+                        const userIdFromHref = url.searchParams.get('to');
+                        return userIdFromHref === msg['user_id'];
+                    }
+                    return false;
+                });
+    
+                if (!userExists) {
+                    const newItem = document.createElement('li');
+                    const newLink = document.createElement('a');
+                    newLink.href = `index.php?to=${msg['user_id']}`;
+                    newLink.textContent = msg['new_user'];
+                    newItem.appendChild(newLink);
+                    menu.appendChild(newItem);
+                }
+    
+            } else {
+                if (msg['from'] === recipient) {
+                    const chatBubble = `<div class="chat chat-start">
                                             <div class="chat-bubble">${msg['msg']}</div>
                                         </div>`;
-                } else {
-                    msgBox.innerHTML = `<div class="chat chat-start">
-                                            <div class="chat-bubble">${msg['msg']}</div>
-                                        </div>`;
-                    hNum.innerText = '1'; 
+    
+                    if (hNum.innerText === '1') {
+                        msgBox.innerHTML += chatBubble;
+                    } else {
+                        msgBox.innerHTML = chatBubble;
+                        hNum.innerText = '1';
+                    }
                 }
             }
-            msgBox.scroll(0, msgBox.scrollHeight);
+    
+            msgBox.scrollTop = msgBox.scrollHeight;
+    
         } catch (e) {
             console.error("Error parsing message:", e);
         }
-    };
+    };    
 
     socket.onclose = function(event) {
         console.log('Connection With The Server Closed.');
