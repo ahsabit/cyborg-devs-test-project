@@ -1,4 +1,4 @@
-If you want to use it locally remember to create the database:
+If you want to use it locally remember to create the database. Here is the structure:
 
 MariaDB [cyborg]> show tables;
 +------------------+
