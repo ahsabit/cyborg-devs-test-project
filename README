@@ -1,0 +1,31 @@
+If you want to use it locally remember to create the database:
+
+MariaDB [cyborg]> show tables;
++------------------+
+| Tables_in_cyborg |
++------------------+
+| msg              |
+| users            |
++------------------+
+2 rows in set (0.000 sec)
+
+MariaDB [cyborg]> describe msg;
++-----------+------------------+------+-----+---------+----------------+
+| Field     | Type             | Null | Key | Default | Extra          |
++-----------+------------------+------+-----+---------+----------------+
+| id        | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| msg       | text             | YES  |     | NULL    |                |
+| recipient | int(10) unsigned | YES  |     | NULL    |                |
+| sender    | int(10) unsigned | YES  |     | NULL    |                |
++-----------+------------------+------+-----+---------+----------------+
+4 rows in set (0.001 sec)
+
+MariaDB [cyborg]> describe users;
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| id            | int(11)      | NO   | PRI | NULL    | auto_increment |
+| username      | varchar(50)  | NO   | UNI | NULL    |                |
+| password_hash | varchar(255) | NO   |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+3 rows in set (0.001 sec)
